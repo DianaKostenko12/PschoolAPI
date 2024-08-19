@@ -11,5 +11,6 @@
         public string WorkPhone { get; set; }
         public string HomePhone { get; set; }
         public int Siblings { get; set; }
+        public ICollection<StudentInfo> Students { get; set; }
     }
 }

@@ -12,7 +12,8 @@ namespace BLL.Services.Parents
     {
         IEnumerable<Parent> GetParents();
         Parent GetParentById(int id);
-        bool CreateParent(ParentDescriptor parent);
+        Parent GetParentByEmail(string email);
+        bool CreateParent(Parent parent, List<StudentInfoDescriptor> students);
         bool UpdateParent(ParentDescriptor parent);
         bool DeleteParent(int parentId);
     }

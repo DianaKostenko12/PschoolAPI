@@ -11,9 +11,15 @@ namespace PschoolAPI.Helper
         {
             CreateMap<Parent, ParentDto>();
             CreateMap<ParentDto, Parent>();
+            CreateMap<Student, StudentDto>();
+            CreateMap<StudentDto, Student>();
 
             CreateMap<ParentDto, ParentDescriptor>();
             CreateMap<ParentDescriptor, ParentDto>();
+            CreateMap<List<StudentInfo>, List<StudentInfoDescriptor>>();
+            CreateMap<List<StudentInfoDescriptor>, List<StudentInfo>>();
+            CreateMap<StudentDescriptor, StudentDto>();
+            CreateMap<StudentDto,StudentDescriptor>();
         }
     }
 }

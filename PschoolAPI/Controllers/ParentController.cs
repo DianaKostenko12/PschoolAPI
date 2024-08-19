@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using BLL.Services.Descriptors;
 using BLL.Services.Parents;
+using DAL.Entities;
 using DAL.Repositories.Parents;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PschoolAPI.Dto;
 
 namespace PschoolAPI.Controllers
@@ -40,11 +42,27 @@ namespace PschoolAPI.Controllers
         public IActionResult CreateParent([FromBody] ParentDto parentDto)
         {
             if (parentDto == null)
-                return BadRequest(ModelState);
+            {
+                return BadRequest("Invalid parent data.");
+            }
 
-            var descriptor = _mapper.Map<ParentDescriptor>(parentDto);
+            var parent = new Parent
+            {
+                FirstName = parentDto.FirstName,
+                LastName = parentDto.LastName,
+                Username = parentDto.Username,
+                Email = parentDto.Email,
+                HomeAddress = parentDto.HomeAddress,
+                Phone1 = parentDto.Phone1,
+                WorkPhone = parentDto.WorkPhone,
+                HomePhone = parentDto.HomePhone,
+                Siblings = parentDto.Siblings,
+                Students = new List<Student>()
+            };
 
-            if (!_parentService.CreateParent(descriptor))
+            var students = _mapper.Map<List<StudentInfoDescriptor>>(parentDto.Students);
+
+            if (!_parentService.CreateParent(parent, students))
             {
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
@@ -55,8 +73,18 @@ namespace PschoolAPI.Controllers
         [HttpPut]
         public IActionResult UpdateParent([FromBody] ParentDto parentDto)
         {
-            if (parentDto == null)
+            if (parentDto == null || string.IsNullOrEmpty(parentDto.Email))
+            {
                 return BadRequest(ModelState);
+            }
+
+            var existingParent = _parentService.GetParentByEmail(parentDto.Email);
+            if (existingParent == null)
+            {
+                return NotFound("Parent not found.");
+            }
+
+
 
             var descriptor = _mapper.Map<ParentDescriptor>(parentDto);
 

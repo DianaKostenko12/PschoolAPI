@@ -32,6 +32,11 @@ namespace DAL.Repositories.Parents
             return _context.Parents.Where(p => p.ParentId == id).FirstOrDefault();
         }
 
+        public Parent GetParentByEmail(string email)
+        {
+            return _context.Parents.Where(p => p.Email == email).FirstOrDefault();
+        }
+
         public bool Remove(Parent parent)
         {
             _context.Remove(parent);

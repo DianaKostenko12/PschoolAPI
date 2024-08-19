@@ -1,5 +1,6 @@
 ﻿using DAL.Data;
 using DAL.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +31,20 @@ namespace DAL.Repositories.Students
         public Student GetById(int id)
         {
             return _context.Students.Where(s => s.StudentId == id).FirstOrDefault();
+        }
+
+        public Student GetStudentsByData(string firstName, string lastName, DateTime dateOfBirth)
+        {
+            return _context.Students
+                        .Where(s =>
+                            s.FirstName == firstName &&
+                            s.LastName == lastName &&
+                            s.DateOfBirth == dateOfBirth).FirstOrDefault();
+        }
+
+        public IEnumerable<Student> GetStudentsById(int parentId)
+        {
+            return _context.Students.Where(p => p.ParentId == parentId).ToList();
         }
 
         public bool Remove(Student student)

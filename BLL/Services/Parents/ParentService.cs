@@ -2,18 +2,22 @@
 using BLL.Services.Descriptors;
 using DAL.Entities;
 using DAL.Repositories.Parents;
+using DAL.Repositories.Students;
+using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Services.Parents
 {
     public class ParentService : IParentService
     {
         private readonly IParentRepository _parentRepository;
+        private readonly IStudentRepository _studentRepository;
         private readonly IMapper _mapper;
 
-        public ParentService(IParentRepository parentRepository, IMapper mapper)
+        public ParentService(IParentRepository parentRepository, IMapper mapper, IStudentRepository studentRepository)
         {
             _parentRepository = parentRepository;
             _mapper = mapper;
+            _studentRepository = studentRepository;
         }
 
         public bool DeleteParent(int parentId)
@@ -21,7 +25,7 @@ namespace BLL.Services.Parents
             if(!_parentRepository.GetAll().Any(p => p.ParentId == parentId)) 
                 return false;
 
-            var parentToDelete = _parentRepository.GetAll().Where(p => p.ParentId == parentId).FirstOrDefault();
+            var parentToDelete = _parentRepository.GetById(parentId);
             if(parentToDelete == null)
                 return false;
 
@@ -33,8 +37,15 @@ namespace BLL.Services.Parents
             if (!_parentRepository.GetAll().Any(p => p.ParentId == id))
                 return null;
 
-            var parent = _parentRepository.GetById(id);
-            return parent;
+            return _parentRepository.GetById(id);
+        }
+
+        public Parent GetParentByEmail(string email)
+        {
+            if (!_parentRepository.GetAll().Any(p => p.Email == email))
+                return null;
+
+            return _parentRepository.GetParentByEmail(email);
         }
 
         public IEnumerable<Parent> GetParents()
@@ -42,12 +53,25 @@ namespace BLL.Services.Parents
            return _parentRepository.GetAll();
         }
 
-        public bool CreateParent(ParentDescriptor descriptor)
+        public bool CreateParent(Parent parent, List<StudentInfoDescriptor> students)
         {
-            if(descriptor == null)
-                return false;
+            if (students != null && students.Any())
+            {
+                foreach (var studentDto in students)
+                {
+                    var existingStudent = _studentRepository.GetStudentsByData(studentDto.FirstName, studentDto.LastName,studentDto.DateOfBirth);
 
-            var parent = _mapper.Map<Parent>(descriptor);
+                    if (existingStudent != null)
+                    {
+                        parent.Students.Add(existingStudent);
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+
             return _parentRepository.Add(parent);
         }
 
@@ -58,7 +82,7 @@ namespace BLL.Services.Parents
 
             var parent = _mapper.Map<Parent>(descriptor);
 
-            var currentParent = _parentRepository.GetAll().Where(p=>p.ParentId == parent.ParentId).FirstOrDefault();
+            var currentParent = _parentRepository.GetById(parent.ParentId);
             if(currentParent == null)
                 return false;
 

@@ -11,6 +11,8 @@ namespace DAL.Repositories.Students
     {
         IEnumerable<Student> GetAll();
         Student GetById(int id);
+        IEnumerable<Student> GetStudentsById(int parentId);
+        Student GetStudentsByData(string firstName, string lastName, DateTime DateOfBirth);
         bool Add(Student student);
         bool Update(Student student);
         bool Remove(Student student);
